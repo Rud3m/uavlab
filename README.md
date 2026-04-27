@@ -9,8 +9,8 @@ Hands-on workshop materials for attacking the 3DR Solo UAV platform.
 **Requirements:** Python 3 (pre-installed on Kali)
 
 ```bash
-git clone https://github.com/dwdrone/bh25.git
-cd bh25/lab
+git clone https://github.com/Rud3m/uavlab.git
+cd uavlab/lab
 python3 serve.py
 ```
 
@@ -46,7 +46,7 @@ The workshop is divided into three sections, shown in the left sidebar:
 ## What's in this Repo
 
 ```
-bh25/
+uavlab/
 ├── lab/
 │   ├── index.html          # Lab UI (open this in a browser, or use serve.py)
 │   ├── serve.py            # Local web server
