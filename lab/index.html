@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Defcon Singapore · UAV Security Workshop</title>
+<style>
+/* ─────────────────────────────────────────────────────────
+   THEME — Dark Wolf palette
+   To change colors, edit the custom properties below
+   ───────────────────────────────────────────────────────── */
+:root {
+  --bg:          #0c0c0c;
+  --surface:     #141414;
+  --card:        #1b1b1b;
+  --border:      #272727;
+  --green:       #7ab526;
+  --green-hi:    #9fd43a;
+  --green-lo:    #2c4a0a;
+  --green-bg:    rgba(122, 181, 38, 0.07);
+  --text:        #dedede;
+  --muted:       #6e6e6e;
+  --code-bg:     #090e05;
+  --warn-bg:     rgba(240, 180, 41, 0.07);
+  --warn:        #f0b429;
+  --sidebar-w:   268px;
+  --header-h:    56px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green-lo); }
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-logo {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.brand-logo .dark { color: var(--text); }
+.brand-logo .wolf { color: var(--green); }
+
+.brand-tag {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+
+.nav { padding: 8px 0 32px; }
+
+.nav-group {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: var(--green);
+  padding: 18px 20px 5px;
+}
+
+.nav a {
+  display: block;
+  padding: 5px 20px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: color 0.12s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav a:hover { color: var(--text); }
+.nav a.active { color: var(--green); border-left: 2px solid var(--green); padding-left: 18px; }
+.nav a.nav-main { font-weight: 600; color: #9a9a9a; font-size: 13px; }
+.nav a.nav-main:hover { color: var(--text); }
+.nav a.nav-sub { padding-left: 34px; font-size: 12px; }
+
+/* ── MAIN CONTENT ────────────────────────────────────────── */
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 0 52px 80px 52px;
+  max-width: 940px;
+}
+
+/* ── PAGE HEADER ─────────────────────────────────────────── */
+.page-header {
+  padding: 44px 0 28px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 52px;
+}
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  margin-bottom: 6px;
+}
+.page-header .subtitle { color: var(--muted); font-size: 14px; }
+
+/* ── SECTION ─────────────────────────────────────────────── */
+.lab-section { margin-bottom: 72px; }
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 36px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--green-lo);
+}
+.section-badge {
+  background: var(--green);
+  color: #000;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 3px;
+}
+.section-heading h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 1px;
+}
+
+/* ── SUBSECTION ──────────────────────────────────────────── */
+.subsection { margin-bottom: 52px; }
+
+.subsection > h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.subsection > .intro {
+  color: var(--muted);
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+/* ── STEP CARD ───────────────────────────────────────────── */
+.step-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 6px;
+  padding: 22px 26px;
+  margin-bottom: 18px;
+  transition: border-color 0.15s;
+}
+.step-card:hover { border-left-color: var(--green-lo); }
+.step-card:target { border-left-color: var(--green); }
+
+.step-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 14px;
+}
+.step-num {
+  background: var(--green-lo);
+  color: var(--green-hi);
+  font-size: 11px;
+  font-weight: 800;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+.step-title h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.step-card p { margin-bottom: 10px; }
+.step-card p:last-child { margin-bottom: 0; }
+
+.step-card ol,
+.step-card ul {
+  padding-left: 22px;
+  margin-bottom: 12px;
+}
+.step-card li { margin-bottom: 5px; }
+.step-card li::marker { color: var(--green); }
+.step-card ol[type="a"] li::marker { color: var(--green); }
+
+/* ── INLINE CODE ─────────────────────────────────────────── */
+code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  background: var(--code-bg);
+  color: var(--green-hi);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--green-lo);
+}
+
+/* ── CODE BLOCK ──────────────────────────────────────────── */
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--green-lo);
+  border-radius: 5px;
+  padding: 13px 16px;
+  margin: 10px 0 14px;
+  overflow-x: auto;
+}
+.code-block pre {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--green-hi);
+  line-height: 1.55;
+  white-space: pre;
+}
+.code-block pre .dim { color: var(--muted); }
+
+kbd {
+  display: inline-block;
+  background: #222;
+  border: 1px solid #444;
+  border-bottom: 2px solid #333;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: 'Consolas', monospace;
+  padding: 1px 6px;
+  color: #ccc;
+}
+
+/* ── CALLOUT BOXES ───────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--green);
+  background: var(--green-bg);
+  padding: 13px 17px;
+  border-radius: 0 5px 5px 0;
+  margin: 14px 0;
+}
+.callout-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--green);
+  margin-bottom: 6px;
+}
+.callout p,
+.callout li { font-size: 14px; margin-bottom: 4px; }
+.callout ul,
+.callout ol { padding-left: 18px; margin-top: 6px; }
+
+.callout.warn {
+  border-color: var(--warn);
+  background: var(--warn-bg);
+}
+.callout.warn .callout-title { color: var(--warn); }
+
+/* ── CREDENTIAL TABLE ────────────────────────────────────── */
+.cred-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0 4px;
+  font-size: 13px;
+}
+.cred-table th {
+  background: var(--green-lo);
+  color: var(--green-hi);
+  text-align: left;
+  padding: 7px 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.cred-table td {
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cred-table tr:last-child td { border-bottom: none; }
+
+/* ── FIGURES / IMAGES ────────────────────────────────────── */
+figure {
+  margin: 14px 0;
+}
+figure img {
+  max-width: 100%;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  display: block;
+}
+figcaption {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 5px;
+  text-align: center;
+  font-style: italic;
+}
+
+.img-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 14px 0;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 800px) {
+  .sidebar { display: none; }
+  .main { padding: 0 20px 60px; }
+  .img-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR — add/remove nav links to match your sections
+     ════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <span class="dark">DARK </span><span class="wolf">WOLF</span>
+    </div>
+    <div class="brand-tag">UAV Security Lab · Defcon</div>
+  </div>
+
+  <nav class="nav">
+
+    <div class="nav-group">Setup</div>
+    <a href="#tools" class="nav-main">Tool Installation</a>
+    <a href="#tool-squashfs"   class="nav-sub">squashfs-tools</a>
+    <a href="#tool-ssh1"       class="nav-sub">openssh-client-ssh1</a>
+    <a href="#tool-adb"        class="nav-sub">ADB</a>
+    <a href="#tool-jadx"       class="nav-sub">jadx-gui</a>
+    <a href="#tool-qgc"        class="nav-sub">QGroundControl</a>
+    <a href="#tool-cewl"       class="nav-sub">cewl</a>
+    <a href="#tool-wifite"     class="nav-sub">wifite</a>
+    <a href="#tool-wireshark"  class="nav-sub">Wireshark + MAVLink</a>
+    <a href="#tool-mavproxy"   class="nav-sub">MAVProxy</a>
+
+    <div class="nav-group">UAV</div>
+    <a href="#extract-firmware" class="nav-main">Extract Firmware</a>
+    <a href="#step-ef-7"  class="nav-sub">Remove microSD</a>
+    <a href="#step-ef-8"  class="nav-sub">Copy microSD</a>
+    <a href="#analyze-firmware" class="nav-main">Analyze Firmware</a>
+    <a href="#wifi-creds"       class="nav-sub">WiFi Credentials</a>
+    <a href="#squashfs"         class="nav-sub">SquashFS Analysis</a>
+
+    <div class="nav-group">GCS</div>
+    <a href="#download-apk" class="nav-main">Download 3DR-Solo App</a>
+    <a href="#analyze-apk"  class="nav-main">Analyze APK</a>
+    <a href="#qgc"          class="nav-main">QGroundControl</a>
+
+    <div class="nav-group">COMMS</div>
+    <a href="#crack-wifi"    class="nav-main">Crack WiFi Password</a>
+    <a href="#sniff-mavlink" class="nav-main">Sniff MAVLink Traffic</a>
+    <a href="#inject-mavlink" class="nav-main">Inject MAVLink Traffic</a>
+
+  </nav>
+</aside>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN CONTENT
+     ════════════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- ── PAGE HEADER ────────────────────────────────────── -->
+  <!-- TO EDIT: change the title/subtitle text below -->
+  <header class="page-header">
+    <h1>UAV Security Workshop</h1>
+    <p class="subtitle">Defcon Singapore· Workshop Notes · 3DR Solo UAV Platform</p>
+  </header>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       SECTION: TOOL INSTALLATION
+       ════════════════════════════════════════════════════ -->
+  <section id="tools" class="lab-section">
+    <div class="section-heading">
+      <span class="section-badge">Setup</span>
+      <h2>Tool Installation</h2>
+    </div>
+    <p style="color:var(--muted);margin-bottom:32px;font-size:14px;">
+      All tools below are used during the lab. Run these commands on your <strong>Kali Linux</strong> laptop before starting. Each block can be run independently — install only what you need for the section you're working on.
+    </p>
+
+    <!-- ── squashfs-tools ──────────────────────────────── -->
+    <!-- TO EDIT: update the install command or description -->
+    <div id="tool-squashfs" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F4E6;</span>
+        <h4>squashfs-tools &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: UAV › Extract Firmware</span></h4>
+      </div>
+      <p>Provides the <code>unsquashfs</code> command to extract the drone's compressed root filesystem.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y squashfs-tools</pre></div>
+      <p>Verify:</p>
+      <div class="code-block"><pre>unsquashfs -v</pre></div>
+    </div>
+
+    <!-- ── openssh-client-ssh1 ────────────────────────── -->
+    <div id="tool-ssh1" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F511;</span>
+        <h4>openssh-client-ssh1 &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: UAV › SquashFS Analysis</span></h4>
+      </div>
+      <p>Provides the legacy <code>ssh1</code> binary that supports older key exchange algorithms dropped by modern OpenSSH. Required to authenticate against the 3DR Solo's SSH server using the extracted key.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y openssh-client-ssh1</pre></div>
+      <p>Verify:</p>
+      <div class="code-block"><pre>ssh1 -V</pre></div>
+      <div class="callout warn">
+        <div class="callout-title">Note</div>
+        <p>If <code>openssh-client-ssh1</code> is not found, try <code>sudo apt install -y ssh1</code> or check that your Kali repos are up to date.</p>
+      </div>
+    </div>
+
+    <!-- ── ADB ────────────────────────────────────────── -->
+    <div id="tool-adb" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F4F1;</span>
+        <h4>ADB (Android Debug Bridge) &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: GCS › Download App</span></h4>
+      </div>
+      <p>Used to communicate with the Android phone over USB — listing packages, finding the APK path, and pulling the file to the laptop.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y adb</pre></div>
+      <p>Plug in the phone via USB, then verify it's detected:</p>
+      <div class="code-block"><pre>adb devices</pre></div>
+      <div class="callout">
+        <div class="callout-title">If no device appears</div>
+        <p>Enable <strong>USB Debugging</strong> on the phone: <strong>Settings → System → Developer Options → USB Debugging</strong>. If Developer Options is hidden, tap <strong>Build Number</strong> seven times under Settings → About Phone.</p>
+      </div>
+    </div>
+
+    <!-- ── jadx ───────────────────────────────────────── -->
+    <div id="tool-jadx" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F50D;</span>
+        <h4>jadx / jadx-gui &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: GCS › Analyze APK</span></h4>
+      </div>
+      <p>Java decompiler with a GUI. Used to decompile the 3DR Solo Android APK and search for hardcoded credentials and API tokens.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y jadx</pre></div>
+      <p>Launch the GUI:</p>
+      <div class="code-block"><pre>jadx-gui &</pre></div>
+      <div class="callout warn">
+        <div class="callout-title">Java required</div>
+        <p>jadx requires Java 11+. If it fails to launch, install it first:</p>
+        <div class="code-block"><pre>sudo apt install -y default-jdk</pre></div>
+      </div>
+    </div>
+
+    <!-- ── QGroundControl ─────────────────────────────── -->
+    <div id="tool-qgc" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x2708;</span>
+        <h4>QGroundControl &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: GCS › QGroundControl</span></h4>
+      </div>
+      <p>Ground control station application. Used to connect to the 3DR Solo UAV over the WiFi network and observe flight data.</p>
+      <p>QGroundControl is distributed as an AppImage. Download it, make it executable, and run it:</p>
+      <div class="code-block"><pre>cd ~
+wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage
+chmod +x QGroundControl.AppImage</pre></div>
+      <p>Install required system libraries if the AppImage fails to start:</p>
+      <div class="code-block"><pre>sudo apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+  gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
+  gstreamer1.0-libav libfuse2</pre></div>
+      <p>Launch:</p>
+      <div class="code-block"><pre>./QGroundControl.AppImage</pre></div>
+      <div class="callout">
+        <div class="callout-title">No internet?</div>
+        <p>Check the thumbdrive for a pre-downloaded <code>QGroundControl.AppImage</code>.</p>
+      </div>
+    </div>
+
+    <!-- ── cewl ───────────────────────────────────────── -->
+    <div id="tool-cewl" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F4DC;</span>
+        <h4>cewl &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: COMMS › Crack WiFi Password</span></h4>
+      </div>
+      <p>Custom word list generator. Scrapes a target website and outputs a wordlist of terms found on that site — useful for targeted brute-force attacks against credentials derived from product documentation.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y cewl</pre></div>
+      <p>Verify:</p>
+      <div class="code-block"><pre>cewl --help</pre></div>
+      <div class="callout">
+        <div class="callout-title">No internet during the lab?</div>
+        <p>A pre-generated wordlist is included in the repo at <code>files/opensolo.words</code>. Skip cewl and use that file directly with wifite.</p>
+      </div>
+    </div>
+
+    <!-- ── wifite ─────────────────────────────────────── -->
+    <div id="tool-wifite" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F4F6;</span>
+        <h4>wifite &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: COMMS › Crack WiFi Password</span></h4>
+      </div>
+      <p>Automated wireless auditing tool. Handles WPS and WPA handshake capture and cracking in a single workflow.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y wifite</pre></div>
+      <p>wifite depends on several other tools. Install them all at once:</p>
+      <div class="code-block"><pre>sudo apt install -y aircrack-ng tshark hcxdumptool hcxtools</pre></div>
+      <p>Your wireless adapter must support <strong>monitor mode</strong>. Verify before the lab:</p>
+      <div class="code-block"><pre>sudo airmon-ng</pre></div>
+      <div class="callout warn">
+        <div class="callout-title">Wireless adapter required</div>
+        <p>wifite will not work with a built-in laptop WiFi card on most systems. You need a USB WiFi adapter that supports monitor mode (e.g., Alfa AWUS036ACH). One is included in your lab kit.</p>
+      </div>
+    </div>
+
+    <!-- ── Wireshark + MAVLink plugin ─────────────────── -->
+    <div id="tool-wireshark" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F4E1;</span>
+        <h4>Wireshark + MAVLink Plugin &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: COMMS › Sniff MAVLink</span></h4>
+      </div>
+      <p>Network packet analyzer. With the MAVLink Lua dissector installed, Wireshark will automatically decode drone telemetry frames.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y wireshark</pre></div>
+      <p>When prompted, select <strong>Yes</strong> to allow non-root users to capture packets, then add your user to the <code>wireshark</code> group:</p>
+      <div class="code-block"><pre>sudo usermod -aG wireshark $USER
+newgrp wireshark</pre></div>
+      <p>Install the MAVLink Wireshark plugin from the repo:</p>
+      <div class="code-block"><pre>mkdir -p ~/.local/lib/wireshark/plugins
+cp files/mavlink_2_common.lua ~/.local/lib/wireshark/plugins/</pre></div>
+      <div class="callout">
+        <div class="callout-title">Note</div>
+        <p>Run that <code>cp</code> command from the repo root (<code>bh25/</code>), not from inside the <code>lab/</code> folder. Restart Wireshark after copying the plugin.</p>
+      </div>
+    </div>
+
+    <!-- ── MAVProxy ───────────────────────────────────── -->
+    <div id="tool-mavproxy" class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F6F8;</span>
+        <h4>MAVProxy &nbsp;<span style="font-weight:400;color:var(--muted);font-size:13px;">— used in: COMMS › Sniff MAVLink (alternative)</span></h4>
+      </div>
+      <p>Command-line MAVLink ground station. Used as a lightweight alternative to Wireshark for reading drone telemetry from the network.</p>
+      <div class="code-block"><pre>sudo apt update && sudo apt install -y mavproxy</pre></div>
+      <p>If not available via apt, install via pip:</p>
+      <div class="code-block"><pre>pip3 install MAVProxy --break-system-packages</pre></div>
+      <p>Verify:</p>
+      <div class="code-block"><pre>mavproxy.py --version</pre></div>
+    </div>
+
+  </section><!-- /tools -->
+
+
+  <!-- ════════════════════════════════════════════════════════
+       SECTION: UAV
+       ════════════════════════════════════════════════════ -->
+  <section id="uav" class="lab-section">
+    <div class="section-heading">
+      <span class="section-badge">UAV</span>
+      <h2>UAV</h2>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: 1. Extract Firmware
+         ───────────────────────────────────────────────── -->
+    <div id="extract-firmware" class="subsection">
+      <h3>Extract Firmware</h3>
+      <p class="intro">The UAV has already been disassembled.</p>
+
+      <!-- ── STEP 7 ─────────────────────────────────────── -->
+      <div id="step-ef-7" class="step-card">
+        <div class="step-title">
+          <span class="step-num">1</span>
+          <h4>Remove the microSD Card</h4>
+        </div>
+        <ol>
+          <li>There is a spring-action mechanism to release the microSD card</li>
+          <li>Push down gently and let go — the card should pop up a bit</li>
+          <li>Remove the microSD Card</li>
+        </ol>
+        <figure>
+          <img src="images/page_06_img_00.png" alt="Finger pushing the microSD card to eject it">
+          <figcaption>Spring-action slot on the companion computer — push then release</figcaption>
+        </figure>
+      </div>
+
+      <!-- ── STEP 8 ─────────────────────────────────────── -->
+      <div id="step-ef-8" class="step-card">
+        <div class="step-title">
+          <span class="step-num">2</span>
+          <h4>Create a Copy of the microSD Card</h4>
+        </div>
+
+        <ol>
+          <li>Place the microSD card in an SD Card adapter</li>
+          <li>Place the SD Card adapter into your Kali laptop</li>
+          <li>Open a terminal</li>
+          <li>
+            Verify that the card is loaded:
+            <div class="code-block"><pre>sudo fdisk -l /dev/sdb</pre></div>
+          </li>
+        </ol>
+
+        <figure>
+          <img src="images/page_07_img_00.png" alt="fdisk output showing 4 partitions on the microSD card">
+          <figcaption>Expected fdisk output — four partitions on the 7.4 GiB card</figcaption>
+        </figure>
+
+        <ol start="5">
+          <li>
+            Copy partition 2 (contains squashfs). Replace <code>YYYYMMDD</code> with today's date:
+            <div class="code-block"><pre>sudo dd if=/dev/sdb2 of=3dr-solo-uav-p2-YYYYMMDD.raw bs=1M status=progress</pre></div>
+          </li>
+          <li>
+            Repeat for Partition 3:
+            <div class="code-block"><pre>sudo dd if=/dev/sdb3 of=3dr-solo-uav-p3-YYYYMMDD.raw bs=1M status=progress</pre></div>
+          </li>
+          <li>
+            Mount the partitions as if they were thumb drives:
+            <div class="code-block"><pre>sudo mkdir /mnt/p2
+sudo mkdir /mnt/p3
+sudo mount -o ro 3dr-solo-uav-p2-20250515.raw /mnt/p2
+sudo mount -o ro 3dr-solo-uav-p3-20250515.raw /mnt/p3</pre></div>
+          </li>
+          <li>
+            Verify partition 2 (boot / squashfs partition):
+            <div class="code-block"><pre>sudo ls -l /mnt/p2</pre></div>
+          </li>
+        </ol>
+
+        <figure>
+          <img src="images/page_09_img_00.png" alt="ls -l /mnt/p2 showing the squashfs file">
+          <figcaption>Partition 2 — contains the squashfs root filesystem image</figcaption>
+        </figure>
+
+        <ol start="9">
+          <li>
+            Verify partition 3 (read/write overlay — persistent <code>/etc</code> files):
+            <div class="code-block"><pre>sudo ls -l /mnt/p3</pre></div>
+          </li>
+        </ol>
+
+        <figure>
+          <img src="images/page_09_img_01.png" alt="ls -l /mnt/p3 showing a minimal Linux root filesystem">
+          <figcaption>Partition 3 — minimal Linux root filesystem with persistent files</figcaption>
+        </figure>
+
+        <div class="callout warn">
+          <div class="callout-title">Also copy partitions 3 and 4</div>
+          <p>Partition 4 is the log partition. This takes ~3 minutes. You can use the pre-made file if available:</p>
+          <div class="code-block"><pre>sudo dd if=/dev/sdb4 of=3dr-solo-uav-p4-YYYYMMDD.raw bs=1M status=progress
+sudo mkdir /mnt/p4
+sudo mount -o ro 3dr-solo-uav-p4-20250515.raw /mnt/p4</pre></div>
+          <p>Or use: <code>3dr-solo-uav-p4-20250515.raw</code> (pre-made on thumbdrive)</p>
+        </div>
+
+        <p>Copy the squashfs filesystem to your home directory:</p>
+        <div class="code-block"><pre>cp /mnt/p2/3dr-solo-imx6solo-3dr-1080p.squashfs ~</pre></div>
+      </div>
+    </div><!-- /extract-firmware -->
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: 2. Analyze Firmware
+         ───────────────────────────────────────────────── -->
+    <div id="analyze-firmware" class="subsection">
+      <h3>Analyze Firmware</h3>
+      <p class="intro">
+        Reviewing firmware for security vulnerabilities can be an extensive task.
+        In this lab, we will look for two credentials we can reuse later in the workshop.
+      </p>
+
+      <div class="callout">
+        <div class="callout-title">Objectives</div>
+        <ul>
+          <li>Find the WiFi login key</li>
+          <li>Find the network login user and password</li>
+        </ul>
+      </div>
+
+      <!-- ── WiFi Credentials ─────────────────────────── -->
+      <div id="wifi-creds" class="step-card">
+        <div class="step-title">
+          <span class="step-num">&#x1F511;</span>
+          <h4>Find WiFi Credentials</h4>
+        </div>
+
+        <p>
+          For WiFi access points the controlling file is usually <code>hostapd.conf</code>.<br>
+          For WiFi clients the controlling file is usually <code>wpa_supplicant.conf</code>.<br>
+          These files are usually found in the <code>/etc</code> directory.
+        </p>
+
+        <ol>
+          <li>
+            List <code>/etc</code> on the persistent partition:
+            <div class="code-block"><pre>sudo ls -1 /mnt/p3/etc</pre></div>
+            <p>There are very few files — these are persistent files written over a read-only filesystem. <strong>This is very good news</strong> as it includes the credentials we are looking for.</p>
+          </li>
+          <li>
+            Read <code>wpa_supplicant.conf</code>:
+            <div class="code-block"><pre>sudo cat /mnt/p3/etc/wpa_supplicant.conf</pre></div>
+            <div class="code-block"><pre>ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+update_config=1
+device_name=Solo
+manufacturer=3D Robotics
+model_name=Solo</pre></div>
+            <div class="callout">
+              <div class="callout-title">Conclusion</div>
+              <p>No SSID or password here. The 3DR Solo UAV is <strong>not configured as a WiFi client</strong>.</p>
+            </div>
+          </li>
+          <li>
+            Read <code>hostapd.conf</code> and strip comments:
+            <div class="code-block"><pre>sudo cat /mnt/p3/etc/hostapd.conf | grep -v '#' | sort</pre></div>
+          </li>
+        </ol>
+
+        <div class="callout">
+          <div class="callout-title">Key Findings — WiFi Access Point</div>
+          <table class="cred-table">
+            <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>SSID</td><td><code>SoloLink_Default</code></td></tr>
+              <tr><td>WiFi Password</td><td><code>sololink</code></td></tr>
+              <tr><td>Channel</td><td><code>0</code> (auto)</td></tr>
+              <tr><td>WPA Version</td><td><code>2</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>For reference, the on-device mount table confirms the firmware's layered filesystem:</p>
+        <div class="code-block"><pre>root@3dr_solo:/etc# mount
+proc on /proc type proc (rw,relatime)
+sysfs on /sys type sysfs (rw,relatime)
+/dev/mmcblk0p2 on /mnt/boot type vfat (ro,relatime,...)
+/mnt/boot/3dr-solo-imx6solo-3dr-1080p.squashfs on /mnt/rootfs.ro type squashfs (ro,relatime)
+/dev/mmcblk0p3 on /mnt/rootfs.rw type ext3 (rw,relatime,...)
+none on / type aufs (rw,relatime,si=60361c12)
+/dev/mmcblk0p4 on /log type ext4 (rw,relatime,data=ordered)</pre></div>
+      </div>
+
+      <!-- ── SquashFS ──────────────────────────────────── -->
+      <div id="squashfs" class="step-card">
+        <div class="step-title">
+          <span class="step-num">&#x1F4E6;</span>
+          <h4>SquashFS Analysis</h4>
+        </div>
+
+        <p>You should have a copy of the squashfs file in your home directory from the previous activity. If not, find one in the <code>~/lab</code> directory or the repo's <code>files/solo/</code> folder.</p>
+
+        <ol>
+          <li>
+            Extract the squashfs:
+            <div class="code-block"><pre>cd /tmp
+cp ~/3dr-solo-imx6solo-3dr-1080p.squashfs /tmp
+sudo unsquashfs 3dr-solo-imx6solo-3dr-1080p.squashfs
+ls squashfs-root</pre></div>
+          </li>
+          <li>
+            Check for SSH credentials inside the firmware:
+            <div class="code-block"><pre>ls squashfs-root/home/root/.ssh</pre></div>
+            <div class="callout">
+              <div class="callout-title">Discovery — SSH Keys in Firmware</div>
+              <p>SSH keys are present in the root user's home directory inside the firmware image!</p>
+            </div>
+          </li>
+          <li>Power up your Solo Controller</li>
+          <li>
+            Find your UAS SSID on your phone:<br>
+            <strong>Swipe Down → Wireless → Saved Networks</strong><br>
+            Note the network, e.g., <code>SoloLink_A1B2C3</code>
+          </li>
+          <li>
+            Connect the laptop to the Solo Controller network:
+            <ol type="a">
+              <li>Click the network icon in the top-right panel</li>
+              <li>Select the <code>SoloLink_XXXXXX</code> network matching your phone</li>
+              <li>Enter password: <code>sololink</code></li>
+              <li>Verify: <code>ip a</code> — look for a <code>10.1.1.x</code> address</li>
+              <li>Ping the controller: <code>ping 10.1.1.1</code></li>
+            </ol>
+          </li>
+          <li>
+            Try to connect with the extracted SSH key:
+            <div class="code-block"><pre>sudo ssh -i squashfs-root/home/root/.ssh/id_rsa-mav-df-xfer root@10.1.1.1</pre></div>
+            <div class="callout warn">
+              <div class="callout-title">Expected result: password prompt (login failed)</div>
+              <p>The modern <code>ssh</code> client has dropped legacy algorithms. The key authentication fails here.</p>
+            </div>
+          </li>
+          <li>
+            Try with the legacy <code>ssh1</code> client:
+            <div class="code-block"><pre>sudo ssh1 -i squashfs-root/home/root/.ssh/id_rsa-mav-df-xfer root@10.1.1.1</pre></div>
+            <div class="callout">
+              <div class="callout-title">Success — Password-less Login via ssh1</div>
+              <p><code>ssh1</code> preserves legacy algorithms dropped by newer <code>ssh</code>. It succeeds against the older SSH server running on the 3DR Solo.</p>
+              <p>Even if the operator changed the default password, the SSH key still provides access.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div><!-- /analyze-firmware -->
+  </section><!-- /uav -->
+
+
+  <!-- ════════════════════════════════════════════════════════
+       SECTION: GCS
+       ════════════════════════════════════════════════════ -->
+  <section id="gcs" class="lab-section">
+    <div class="section-heading">
+      <span class="section-badge">GCS</span>
+      <h2>GCS</h2>
+    </div>
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: Download 3DR-Solo App
+         ───────────────────────────────────────────────── -->
+    <div id="download-apk" class="subsection">
+      <h3>Download the 3DR-Solo App from the Phone</h3>
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">1</span>
+          <h4>Start the ADB Service</h4>
+        </div>
+        <ol>
+          <li>
+            In a terminal on the laptop, run:
+            <div class="code-block"><pre>adb devices</pre></div>
+          </li>
+          <li>
+            If no devices are listed, re-establish developer mode on the phone:
+            <ol type="a">
+              <li>On the phone: <strong>Settings → About Phone</strong></li>
+              <li>Tap <strong>Build Number</strong> seven times</li>
+              <li>You are now a developer</li>
+              <li>Open: <strong>Settings → System → Developer Options</strong></li>
+              <li>Find <strong>USB debugging</strong> and enable it</li>
+              <li>Run <code>adb devices</code> again</li>
+            </ol>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">2</span>
+          <h4>List Installed Packages</h4>
+        </div>
+        <p>There are many packages — filter them:</p>
+        <div class="code-block"><pre>adb shell cmd package list packages | sort -r | grep -v motorola | grep -v google | grep -v com.android</pre></div>
+        <figure>
+          <img src="images/page_13_img_00.png" alt="ADB package list filtered output showing com.o3dr.solo.android">
+          <figcaption>Filtered package list — note <code>com.o3dr.solo.android</code> near the bottom</figcaption>
+        </figure>
+        <div class="callout">
+          <div class="callout-title">Target Package</div>
+          <p><code>com.o3dr.solo.android</code></p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">3</span>
+          <h4>Find the Install Path</h4>
+        </div>
+        <div class="code-block"><pre>cd /tmp
+adb shell pm path com.o3dr.solo.android</pre></div>
+        <p>Example output:</p>
+        <div class="code-block"><pre>package:/data/app/~~LQdnnVpL6HHzsf-YqHC6Ww==/com.o3dr.solo.android-_h4ZIQgEnj8hXPBsVekUaw==/base.apk</pre></div>
+        <figure>
+          <img src="images/page_14_img_00.png" alt="adb pm path output showing the APK install path">
+          <figcaption>APK install path on device (path will vary by device)</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">4</span>
+          <h4>Download the APK</h4>
+        </div>
+        <p>Use the path found above (your path hash will differ):</p>
+        <div class="code-block"><pre>adb pull /data/app/~~LQdnnVpL6HHzsf-YqHC6Ww==/com.o3dr.solo.android-_h4ZIQgEnj8hXPBsVekUaw==/base.apk /tmp/3DR-Solo.apk</pre></div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">5</span>
+          <h4>Verify the Download</h4>
+        </div>
+        <div class="code-block"><pre>ls -l 3DR-Solo.apk
+md5sum 3DR-Solo.apk</pre></div>
+        <figure>
+          <img src="images/page_14_img_01.png" alt="File size and MD5 hash output for the downloaded APK">
+          <figcaption>Record size and MD5 for verification</figcaption>
+        </figure>
+      </div>
+    </div><!-- /download-apk -->
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: Analyze APK
+         ───────────────────────────────────────────────── -->
+    <div id="analyze-apk" class="subsection">
+      <h3>Analyze APK</h3>
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">1</span>
+          <h4>Open in jadx-gui</h4>
+        </div>
+        <ol>
+          <li>
+            Start jadx-gui:
+            <div class="code-block"><pre>jadx-gui</pre></div>
+          </li>
+          <li>
+            Open the APK:<br>
+            <strong>File → Open Files → /tmp → 3DR-Solo.apk</strong>
+          </li>
+        </ol>
+        <figure>
+          <img src="images/page_15_img_00.png" alt="jadx-gui file open dialog with 3DR-Solo.apk selected">
+          <figcaption>jadx-gui file open dialog — select 3DR-Solo.apk from /tmp</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">2</span>
+          <h4>Search for Hardcoded Passwords</h4>
+        </div>
+        <ol>
+          <li>Click the <strong>Magnifying Glass</strong> search icon</li>
+          <li>
+            Search for <code>passwords</code>:
+            <ul>
+              <li>Select <strong>Code</strong> option</li>
+              <li>Select <strong>Case-insensitive</strong> option</li>
+              <li>Click <strong>"Load all"</strong> in the lower left</li>
+            </ul>
+          </li>
+          <li>
+            Scroll to node:<br>
+            <code>com.o3dr.solo.android.service.update.BackgroundRunnerService</code>
+            <div class="callout">
+              <div class="callout-title">Findings</div>
+              <ul>
+                <li><code>SOLO_LINK_DEFAULT_PASSWORD: sololink</code></li>
+                <li><code>UPDATE_SERVER_API_TOKEN: bd02…b6df</code></li>
+              </ul>
+            </div>
+          </li>
+          <li>
+            Scroll to node:<br>
+            <code>com.o3dr.solo.android.appstate.SoloApp</code>
+            <ol type="a">
+              <li>Note: <code>SSH_PASSWORD</code></li>
+              <li>Double-click the entry to expand</li>
+            </ol>
+          </li>
+        </ol>
+
+        <figure>
+          <img src="images/page_16_img_00.png" alt="jadx-gui showing SSH credentials in the SoloApp class">
+          <figcaption>SoloApp class — hardcoded SSH credentials</figcaption>
+        </figure>
+
+        <div class="callout">
+          <div class="callout-title">Key Findings — SSH Credentials</div>
+          <table class="cred-table">
+            <thead><tr><th>Variable</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>ARTOO_IP</td><td><code>10.1.1.1</code></td></tr>
+              <tr><td>SSH_USERNAME</td><td><code>root</code></td></tr>
+              <tr><td>SSH_PASSWORD</td><td><code>TjSDBkAu</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">3</span>
+          <h4>Find Additional Hardcoded Tokens</h4>
+        </div>
+        <ol>
+          <li>Search for <code>passwords</code> again (same settings as before)</li>
+          <li>
+            Scroll to node: <code>com.o3dr.solo.android.BuildConfig</code>
+            <ol type="a">
+              <li>Note four distinct tokens</li>
+              <li>Double-click to reveal additional keys and sensitive information</li>
+            </ol>
+          </li>
+        </ol>
+        <figure>
+          <img src="images/page_16_img_01.png" alt="jadx-gui showing BuildConfig with multiple API tokens">
+          <figcaption>BuildConfig — multiple API tokens and keys hardcoded in the app</figcaption>
+        </figure>
+      </div>
+    </div><!-- /analyze-apk -->
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: QGroundControl
+         ───────────────────────────────────────────────── -->
+    <div id="qgc" class="subsection">
+      <h3>QGroundControl</h3>
+
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">&#x2708;</span>
+          <h4>Connect via QGroundControl</h4>
+        </div>
+        <ol>
+          <li>Turn on the Solo Controller</li>
+          <li>Turn on the 3DR Solo UAV</li>
+          <li>Connect phone to <code>SoloLink_XXXXXX</code> WiFi network</li>
+          <li>Open the QGroundControl app</li>
+          <li>You should be able to connect from the phone to the 3DR Solo UAS</li>
+        </ol>
+        <figure>
+          <img src="images/page_17_img_00.png" alt="QGroundControl app showing Ready To Fly status with pre-arm failure">
+          <figcaption>QGroundControl connected to 3DR Solo — note the pre-arm check failure</figcaption>
+        </figure>
+      </div>
+    </div><!-- /qgc -->
+  </section><!-- /gcs -->
+
+
+  <!-- ════════════════════════════════════════════════════════
+       SECTION: COMMS
+       ════════════════════════════════════════════════════ -->
+  <section id="comms" class="lab-section">
+    <div class="section-heading">
+      <span class="section-badge">COMMS</span>
+      <h2>COMMS</h2>
+    </div>
+
+    <!-- COMMS context images from page 17 -->
+    <div class="img-row" style="margin-bottom:32px;">
+      <figure>
+        <img src="images/page_17_img_01.png" alt="Airodump-ng scan showing SoloLink networks and beacons">
+        <figcaption>Scanning — SoloLink networks visible in the room</figcaption>
+      </figure>
+      <figure>
+        <img src="images/page_17_img_02.png" alt="Airodump-ng showing client stations associated to SoloLink networks">
+        <figcaption>Associated clients on SoloLink networks</figcaption>
+      </figure>
+    </div>
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: Crack WiFi Password
+         ───────────────────────────────────────────────── -->
+    <div id="crack-wifi" class="subsection">
+      <h3>Crack WiFi Password</h3>
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">1</span>
+          <h4>Find Your UAV's SSID</h4>
+        </div>
+        <p>On your phone: <strong>Internet → WiFi → Saved Networks</strong></p>
+        <p>Note the network name, e.g., <code>SoloLink_A1B2C3</code> — this is your UAS WiFi SSID.</p>
+        <div class="callout warn">
+          <div class="callout-title">Important</div>
+          <p>There will be many similar SSIDs in the room. You must target <strong>your own</strong> network.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">2</span>
+          <h4>Create a Wordlist with cewl</h4>
+        </div>
+        <p>Web-scraping vendor websites is a good technique for generating targeted wordlists. Use <code>cewl</code> to scrape the OpenSolo development site. <strong>Requires internet access.</strong></p>
+        <div class="code-block"><pre>cewl --with-numbers --min_word_length 8 -d 1 https://github.com/OpenSolo/OpenSolo -w opensolo.words</pre></div>
+        <p>Output: approximately 2,644 words in the list.</p>
+        <div class="callout">
+          <div class="callout-title">No Internet? Use the Pre-made Wordlist</div>
+          <p>Use <code>opensolo.words</code> from the thumbdrive, or from the repo at <code>files/opensolo.words</code>.</p>
+        </div>
+        <figure>
+          <img src="images/page_18_img_00.png" alt="cewl scraping output and wifite scanning for networks">
+          <figcaption>cewl wordlist generation and wifite initial scan</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">3</span>
+          <h4>Run wifite</h4>
+        </div>
+        <div class="code-block"><pre>wifite --dict opensolo.words</pre></div>
+        <p>When you see your UAS SSID (e.g., <code>SoloLink_A1B2C3</code>) with 1 or 2 clients in the <strong>CLIENT</strong> column, press <kbd>Ctrl+C</kbd> to stop scanning and start the attack.</p>
+        <figure>
+          <img src="images/page_18_img_01.png" alt="wifite scan showing SoloLink networks and client probe data">
+          <figcaption>wifite scan — wait for clients to appear on your SSID before stopping</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">4</span>
+          <h4>Bypass Default Attacks to Reach WPA Handshake</h4>
+        </div>
+        <p>wifite will try WPS attacks first. Skip them:</p>
+        <ol>
+          <li>Press <kbd>Ctrl+C</kbd> to bypass the <strong>Pixie Dust</strong> attack, then <kbd>c</kbd> to continue</li>
+          <li>Press <kbd>Ctrl+C</kbd> to bypass the <strong>WPS NULL PIN</strong> attack, then <kbd>c</kbd> to continue</li>
+          <li>Press <kbd>Ctrl+C</kbd> to bypass the <strong>WPS PIN ATTACK</strong>, then <kbd>c</kbd> to continue</li>
+          <li>You should now be in the <strong>WPA Handshake</strong> attack</li>
+          <li>Wait 1–2 minutes for an authentication handshake to appear</li>
+          <li>wifite will search the wordlist for a matching password</li>
+        </ol>
+        <figure>
+          <img src="images/page_19_img_00.png" alt="wifite bypassing WPS attacks and running handshake capture">
+          <figcaption>Bypassing WPS attacks — pressing c to continue to the WPA Handshake phase</figcaption>
+        </figure>
+        <figure>
+          <img src="images/page_20_img_00.png" alt="wifite cracking the WPA handshake with the opensolo.words wordlist">
+          <figcaption>wifite cracks the WPA handshake — password found</figcaption>
+        </figure>
+        <div class="callout">
+          <div class="callout-title">Result</div>
+          <p>WiFi PSK (password) cracked: <code>sololink</code></p>
+        </div>
+      </div>
+    </div><!-- /crack-wifi -->
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: Sniff MAVLink Traffic
+         ───────────────────────────────────────────────── -->
+    <div id="sniff-mavlink" class="subsection">
+      <h3>Sniff MAVLink Traffic</h3>
+      <p class="intro">Now that we have the WiFi password, we can connect our laptop to the UAS network and observe MAVLink telemetry.</p>
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">1</span>
+          <h4>Connect to the UAS WiFi Network</h4>
+        </div>
+        <ol>
+          <li>Click the small WiFi icon in the upper right corner</li>
+          <li>Select the <code>SoloLink_XXXXXX</code> network matching your phone's SSID</li>
+          <li>Enter password: <code>sololink</code></li>
+        </ol>
+        <p>Verify the connection:</p>
+        <div class="code-block"><pre>ip a</pre></div>
+        <p>You should see a network interface with an IP address like <code>10.1.1.x</code>.</p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">2</span>
+          <h4>Capture with Wireshark</h4>
+        </div>
+        <p>Open Wireshark and select the wireless interface with the <code>10.1.1.x</code> address. You should be able to sniff traffic between:</p>
+        <ul>
+          <li>Flight controller: <code>10.1.1.1</code></li>
+          <li>QGroundControl app (phone): e.g., <code>10.1.1.145</code></li>
+        </ul>
+
+        <div class="callout">
+          <div class="callout-title">Install the MAVLink Wireshark Plugin</div>
+          <ol>
+            <li>Find <code>mavlink_2_common.lua</code> on the thumbdrive, or at <code>files/mavlink_2_common.lua</code> in the repo</li>
+            <li>
+              Copy it to the Wireshark plugins directory:
+              <div class="code-block"><pre>~/.local/lib/wireshark/plugins/</pre></div>
+            </li>
+            <li>Restart Wireshark — MAVLink packets will now be decoded automatically</li>
+          </ol>
+        </div>
+
+        <figure>
+          <img src="images/page_21_img_00.png" alt="Wireshark capturing and decoding MAVLink telemetry traffic">
+          <figcaption>Wireshark with MAVLink plugin — telemetry between controller and GCS fully decoded</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">3</span>
+          <h4>Capture with MAVProxy (Alternative)</h4>
+        </div>
+        <p>You can also use MAVProxy to sniff traffic from the command line. Use your own <code>10.1.1.x</code> IP address:</p>
+        <div class="code-block"><pre>sudo mavproxy --master=udp:10.1.1.145:14550</pre></div>
+        <div class="callout">
+          <div class="callout-title">Note</div>
+          <p>This MAVLink connection is <strong>read only</strong>. To inject traffic, proceed to the next section.</p>
+        </div>
+      </div>
+    </div><!-- /sniff-mavlink -->
+
+
+    <!-- ─────────────────────────────────────────────────────
+         SUBSECTION: Inject MAVLink Traffic
+         ───────────────────────────────────────────────── -->
+    <div id="inject-mavlink" class="subsection">
+      <h3>Inject MAVLink Traffic</h3>
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">1</span>
+          <h4>Record the Phone's Network Details</h4>
+        </div>
+        <p>On phone: <strong>Swipe Down → Wi-Fi → SoloLink_A1B2C3 → Advanced → Scroll Down</strong></p>
+        <ul>
+          <li>Note the <strong>IP Address</strong> (e.g., <code>10.1.1.144</code>)</li>
+          <li>Note the <strong>Randomized MAC Address</strong> (e.g., <code>96:04:01:83:6a:c4</code>)</li>
+        </ul>
+        <figure>
+          <img src="images/page_22_img_00.png" alt="Android phone advanced WiFi settings showing IP address and randomized MAC">
+          <figcaption>Advanced Network Settings for the Android Phone Wi-Fi Connection</figcaption>
+        </figure>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">2</span>
+          <h4>Clone Phone IP and MAC on the Laptop</h4>
+        </div>
+        <ol>
+          <li>
+            Right-click the wireless icon in the upper right corner →<br>
+            <strong>Edit Connections</strong>
+          </li>
+          <li>
+            In the Network Connections panel:
+            <ul>
+              <li>Select <code>SoloLink_A1B2C3</code></li>
+              <li>Click the <strong>gear icon</strong> at the bottom to edit</li>
+            </ul>
+          </li>
+          <li>
+            In the <strong>Wi-Fi</strong> tab:
+            <ul>
+              <li>In the <strong>Cloned MAC address</strong> field, enter the same MAC as your phone</li>
+            </ul>
+          </li>
+          <li>
+            In the <strong>IPv4</strong> tab:
+            <ul>
+              <li>Change method to <strong>Manual</strong></li>
+              <li>Click <strong>Add</strong></li>
+              <li>Enter the phone's IPv4 address</li>
+              <li>Enter <code>24</code> for the netmask</li>
+              <li>Click <strong>Save</strong></li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-title">
+          <span class="step-num">3</span>
+          <h4>Take Over the QGroundControl Connection</h4>
+        </div>
+        <p>After saving, your laptop will reconnect using the phone's IP and MAC. The drone's flight controller will see a duplicate and the laptop will take over the GCS connection. The phone will drop its connection.</p>
+        <div class="img-row">
+          <figure>
+            <img src="images/page_23_img_00.png" alt="QGroundControl on the laptop gaining full connection to the drone">
+            <figcaption>QGroundControl gaining connection on the Laptop</figcaption>
+          </figure>
+          <figure>
+            <img src="images/page_23_img_01.png" alt="QGroundControl on the phone losing its connection to the drone">
+            <figcaption>QGroundControl losing connection on the Phone</figcaption>
+          </figure>
+        </div>
+        <div class="callout">
+          <div class="callout-title">Result</div>
+          <p>The laptop now has full MAVLink GCS control over the drone. The phone has been completely displaced without any authentication bypass — this works because the MAVLink protocol has no client authentication.</p>
+        </div>
+      </div>
+    </div><!-- /inject-mavlink -->
+  </section><!-- /comms -->
+
+</main><!-- /main -->
+
+
+<script>
+// ── Sidebar active link tracking on scroll ──────────────────
+const links = document.querySelectorAll('.nav a[href^="#"]');
+const targets = [];
+links.forEach(a => {
+  const id = a.getAttribute('href').slice(1);
+  const el = document.getElementById(id);
+  if (el) targets.push({ el, a });
+});
+
+function updateNav() {
+  const y = window.scrollY + 140;
+  let current = null;
+  for (const { el, a } of targets) {
+    if (el.getBoundingClientRect().top + window.scrollY <= y) current = a;
+  }
+  links.forEach(l => l.classList.remove('active'));
+  if (current) current.classList.add('active');
+}
+
+window.addEventListener('scroll', updateNav, { passive: true });
+updateNav();
+</script>
+
+</body>
+</html>
