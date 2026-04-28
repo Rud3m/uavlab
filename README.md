@@ -95,7 +95,8 @@ sudo apt update && sudo apt install -y jadx
 ### QGroundControl
 Ground control station app for connecting to the drone over WiFi.
 ```bash
-wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage
+https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
+
 chmod +x QGroundControl.AppImage
 # Required libraries
 sudo apt install -y libgstreamer1.0-dev gstreamer1.0-plugins-good \
