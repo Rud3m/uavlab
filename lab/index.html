@@ -690,8 +690,8 @@ cp files/mavlink_2_common.lua ~/.local/lib/wireshark/plugins/</pre></div>
             Mount the partitions as if they were thumb drives:
             <div class="code-block"><pre>sudo mkdir /mnt/p2
 sudo mkdir /mnt/p3
-sudo mount -o ro 3dr-solo-uav-p2-20250515.raw /mnt/p2
-sudo mount -o ro 3dr-solo-uav-p3-20250515.raw /mnt/p3</pre></div>
+sudo mount -o rw 3dr-solo-uav-p2-20250515.raw /mnt/p2
+sudo mount -o rw 3dr-solo-uav-p3-20250515.raw /mnt/p3</pre></div>
           </li>
           <li>
             Verify partition 2 (boot / squashfs partition):
@@ -721,7 +721,7 @@ sudo mount -o ro 3dr-solo-uav-p3-20250515.raw /mnt/p3</pre></div>
           <p>Partition 4 is the log partition. This takes ~3 minutes. You can use the pre-made file if available:</p>
           <div class="code-block"><pre>sudo dd if=/dev/sdb4 of=3dr-solo-uav-p4-YYYYMMDD.raw bs=1M status=progress
 sudo mkdir /mnt/p4
-sudo mount -o ro 3dr-solo-uav-p4-20250515.raw /mnt/p4</pre></div>
+sudo mount -o rw 3dr-solo-uav-p4-20250515.raw /mnt/p4</pre></div>
           <p>Or use: <code>3dr-solo-uav-p4-20250515.raw</code> (pre-made on thumbdrive)</p>
         </div>
 
