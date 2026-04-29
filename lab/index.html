@@ -370,6 +370,9 @@ figcaption {
 
   <nav class="nav">
 
+    <div class="nav-group">Hardware</div>
+    <a href="#hardware" class="nav-main">Lab Kit</a>
+
     <div class="nav-group">Setup</div>
     <a href="#tools" class="nav-main">Tool Installation</a>
     <a href="#tool-squashfs"   class="nav-sub">squashfs-tools</a>
@@ -415,6 +418,40 @@ figcaption {
     <h1>UAV Security Workshop</h1>
     <p class="subtitle">Defcon Singapore· Workshop Notes · 3DR Solo UAV Platform</p>
   </header>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       SECTION: HARDWARE
+       ════════════════════════════════════════════════════ -->
+  <section id="hardware" class="lab-section">
+    <div class="section-heading">
+      <span class="section-badge">Hardware</span>
+      <h2>Lab Kit</h2>
+    </div>
+    <p style="color:var(--muted);margin-bottom:24px;font-size:14px;">
+      Your lab station includes the following hardware. Familiarize yourself with each component before starting.
+    </p>
+
+    <figure style="margin-bottom:32px;">
+      <img src="images/hardware.jpg" alt="Lab kit hardware laid out: 3DR Solo drone, controller, Nexus phone, TP-Link wireless card, and USB SD card adapter">
+      <figcaption>Complete lab kit</figcaption>
+    </figure>
+
+    <!-- TO EDIT: update the hardware list items below -->
+    <div class="step-card">
+      <div class="step-title">
+        <span class="step-num">&#x1F4E6;</span>
+        <h4>Provided Hardware</h4>
+      </div>
+      <ul>
+        <li><strong>3DR Solo Drone</strong> — the target UAV. Runs an embedded Linux system on a Freescale i.MX6 Solo companion computer.</li>
+        <li><strong>3DR Solo Controller</strong> — the ground-based radio controller. Acts as a WiFi access point (<code>SoloLink_XXXXXX</code>) bridging the drone and GCS.</li>
+        <li><strong>Nexus Android Phone</strong> — running the 3DR Solo GCS app. Connected to the SoloLink network during the lab.</li>
+        <li><strong>TP-Link Wireless Card</strong> — USB WiFi adapter with monitor mode support. Required for the wifite WiFi cracking exercise.</li>
+        <li><strong>USB SD Card Adapter</strong> — used to mount the microSD card from the drone's companion computer on your Kali laptop.</li>
+      </ul>
+    </div>
+  </section><!-- /hardware -->
 
 
   <!-- ════════════════════════════════════════════════════════
@@ -499,9 +536,9 @@ figcaption {
       </div>
       <p>Ground control station application. Used to connect to the 3DR Solo UAV over the WiFi network and observe flight data.</p>
       <p>QGroundControl is distributed as an AppImage. Download it, make it executable, and run it:</p>
-      <div class="code-block"><pre>
-https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
-</pre></div>
+      <div class="code-block"><pre>cd ~
+wget https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage
+chmod +x QGroundControl.AppImage</pre></div>
       <p>Install required system libraries if the AppImage fails to start:</p>
       <div class="code-block"><pre>sudo apt install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
   gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
