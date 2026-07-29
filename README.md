@@ -48,9 +48,16 @@ The workshop is divided into three sections, shown in the left sidebar:
 ```
 uavlab/
 ├── lab/
-│   ├── index.html          # Lab UI (open this in a browser, or use serve.py)
+│   ├── lab.md              # Editable lab source — edit this
+│   ├── build.py            # Rebuilds index.html from lab.md
+│   ├── index.html          # Generated Lab UI (open in a browser, or use serve.py)
 │   ├── serve.py            # Local web server
 │   └── images/             # All lab screenshots and photos
+├── apps/
+│   ├── install-lab-tools.sh      # One-shot installer for this lab's tools
+│   ├── install-workshop-apps.sh  # Full Dark Wolf workshop provisioner
+│   ├── runQGC.sh                 # QGroundControl launch helper
+│   └── libfuse2.sh               # Builds libfuse2 from source (QGC fallback)
 ├── files/
 │   ├── keys/               # SSH key pair for the 3DR Solo root account
 │   ├── mavlink_2_common.lua  # Wireshark plugin for MAVLink decoding
@@ -59,83 +66,43 @@ uavlab/
 └── Lab Overview.pdf        # Original workshop notes (same content as the UI)
 ```
 
+> **Editing the lab:** `lab/index.html` is generated. Edit `lab/lab.md`, then run
+> `python3 build.py` from `lab/` to regenerate it.
+
 ---
 
 ## Tool Installation
 
-All commands assume **Kali Linux**. Run these before starting the lab. The lab UI also has a full **Setup** section with these same instructions.
+All commands assume **Kali Linux**. Every tool the lab uses installs from one script — run it as your normal **kali** user (not root) before starting:
 
-### squashfs-tools
-Used to extract the drone's compressed root filesystem.
 ```bash
-sudo apt update && sudo apt install -y squashfs-tools
+cd apps
+chmod +x install-lab-tools.sh
+./install-lab-tools.sh
 ```
 
-### openssh-client-ssh1
-Legacy SSH client that supports the older key algorithms the 3DR Solo's SSH server requires.
-```bash
-sudo apt update && sudo apt install -y openssh-client-ssh1
-```
-> If the package isn't found, try `sudo apt install -y ssh1` and ensure your Kali repos are up to date.
+The script is idempotent (safe to re-run) and prints a pass/fail summary at the end. **Log out and back in** afterward so Wireshark's capture-group membership takes effect. It installs:
 
-### ADB (Android Debug Bridge)
-Used to pull the 3DR Solo APK off the phone.
-```bash
-sudo apt update && sudo apt install -y adb
-```
-Enable **USB Debugging** on the phone first: **Settings → System → Developer Options → USB Debugging**. If Developer Options is hidden, tap **Build Number** seven times under About Phone.
+| Tool | Provides | Used in |
+|------|----------|---------|
+| squashfs-tools | `unsquashfs` | UAV › Extract Firmware |
+| openssh-client-ssh1 | `ssh1` | UAV › SquashFS Analysis |
+| adb | `adb` | GCS › Download App |
+| jadx (+ default-jdk) | `jadx-gui` | GCS › Analyze APK |
+| QGroundControl | `QGroundControl.AppImage` | GCS › QGroundControl |
+| cewl | `cewl` | COMMS › Crack WiFi Password |
+| wifite + aircrack-ng, tshark, hcxdumptool, hcxtools | `wifite` | COMMS › Crack WiFi Password |
+| Wireshark + MAVLink plugin | `wireshark` | COMMS › Sniff MAVLink |
+| MAVProxy | `mavproxy.py` | COMMS › Sniff MAVLink |
 
-### jadx-gui
-APK decompiler. Used to find hardcoded credentials in the 3DR Solo app.
-```bash
-sudo apt update && sudo apt install -y jadx
-```
-> Requires Java 11+: `sudo apt install -y default-jdk`
+QGroundControl is placed in `~/apps/QGroundControl/`; launch it with `./runQGC.sh` from there.
 
-### QGroundControl
-Ground control station app for connecting to the drone over WiFi.
-```bash
-https://docs.qgroundcontrol.com/master/en/qgc-user-guide/getting_started/download_and_install.html
+**Notes**
+- **wifite** needs a USB WiFi adapter with monitor-mode support (included in the kit); verify with `sudo airmon-ng`.
+- **Offline?** Pre-stage `QGroundControl.AppImage` into `~/apps/QGroundControl/` and use the bundled `files/opensolo.words` instead of running cewl.
+- `apps/install-workshop-apps.sh` is the broader Dark Wolf workshop provisioner; `apps/install-lab-tools.sh` is the trimmed installer for just this lab.
 
-chmod +x QGroundControl.AppImage
-# Required libraries
-sudo apt install -y libgstreamer1.0-dev gstreamer1.0-plugins-good \
-  gstreamer1.0-plugins-bad gstreamer1.0-libav libfuse2
-./QGroundControl.AppImage
-```
-> No internet? Check the thumbdrive for a pre-downloaded AppImage.
-
-### cewl
-Scrapes a website to generate a targeted wordlist for brute-force attacks.
-```bash
-sudo apt update && sudo apt install -y cewl
-```
-> No internet during the lab? Use the pre-generated wordlist at `files/opensolo.words`.
-
-### wifite + dependencies
-Automated WPA handshake capture and cracking.
-```bash
-sudo apt update && sudo apt install -y wifite aircrack-ng tshark hcxdumptool hcxtools
-```
-> **A USB WiFi adapter that supports monitor mode is required** (included in your lab kit). Verify with `sudo airmon-ng`.
-
-### Wireshark + MAVLink plugin
-Packet analyzer with MAVLink decoding. Run from the repo root (`bh25/`):
-```bash
-sudo apt update && sudo apt install -y wireshark
-sudo usermod -aG wireshark $USER && newgrp wireshark
-mkdir -p ~/.local/lib/wireshark/plugins
-cp files/mavlink_2_common.lua ~/.local/lib/wireshark/plugins/
-```
-Restart Wireshark after copying the plugin.
-
-### MAVProxy
-Command-line MAVLink ground station, used as a lightweight alternative to Wireshark.
-```bash
-sudo apt update && sudo apt install -y mavproxy
-# If not in apt:
-pip3 install MAVProxy --break-system-packages
-```
+The lab UI's **Setup** section has the same instructions.
 
 ---
 
