@@ -32,8 +32,14 @@ TARGET_HOME="$(eval echo "~${TARGET_USER}")"
 APP_DIR="${TARGET_HOME}/apps"
 PLUGIN_DIR="${TARGET_HOME}/.local/lib/wireshark/plugins"
 
-# QGroundControl AppImage source (override with QGC_URL=... ./install-lab-tools.sh)
-QGC_URL="${QGC_URL:-https://d176tv9ibo4jno.cloudfront.net/latest/QGroundControl.AppImage}"
+# QGroundControl AppImage source. Set QGC_URL=... to force a specific URL;
+# otherwise the candidates below are tried in order (latest GitHub release first).
+QGC_URL="${QGC_URL:-}"
+QGC_CANDIDATES=(
+  "https://github.com/mavlink/qgroundcontrol/releases/latest/download/QGroundControl.AppImage"
+  "https://github.com/mavlink/qgroundcontrol/releases/latest/download/QGroundControl-x86_64.AppImage"
+  "https://github.com/mavlink/qgroundcontrol/releases/download/v4.0.1/QGroundControl.AppImage"
+)
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -120,6 +126,27 @@ install_mavproxy() {
   pip3 install --break-system-packages MAVProxy
 }
 
+# Ensure libfuse.so.2 exists (AppImages need it). Try apt, then source-build.
+ensure_libfuse2() {
+  if ldconfig -p 2>/dev/null | grep -q 'libfuse\.so\.2'; then
+    note "libfuse.so.2 already present."
+    return 0
+  fi
+  # Package name changed with the time_t transition; try both.
+  if apt_install libfuse2t64 || apt_install libfuse2; then
+    note "libfuse2 installed via apt."
+    return 0
+  fi
+  warn "libfuse2 not in apt — building it from source via libfuse2.sh …"
+  if [ ! -f "${SCRIPT_DIR}/libfuse2.sh" ]; then
+    warn "libfuse2.sh not found next to this script."
+    return 1
+  fi
+  local bdir="${APP_DIR}/QGroundControl/build-libfuse"
+  mkdir -p "${bdir}"
+  ( cd "${bdir}" && bash "${SCRIPT_DIR}/libfuse2.sh" )
+}
+
 install_qgroundcontrol() {
   section "QGroundControl"
   # Runtime libraries the AppImage needs.
@@ -127,25 +154,41 @@ install_qgroundcontrol() {
               python3-gi python3-gst-1.0 \
               libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor0 \
     || warn "Some QGC runtime libs failed to install"
-  # libfuse2 name changed with the time_t transition; try both.
-  apt_install libfuse2t64 || apt_install libfuse2 \
-    || warn "libfuse2 not found. If the AppImage won't start, run ${SCRIPT_DIR}/libfuse2.sh"
+
+  local have_fuse=1
+  ensure_libfuse2 || { have_fuse=0; warn "libfuse2 unavailable — runQGC.sh will fall back to --appimage-extract-and-run"; }
 
   local qgc_dir="${APP_DIR}/QGroundControl"
   mkdir -p "${qgc_dir}"
-  [ -f "${SCRIPT_DIR}/runQGC.sh" ] && cp "${SCRIPT_DIR}/runQGC.sh" "${qgc_dir}/" && chmod +x "${qgc_dir}/runQGC.sh"
+  [ -f "${SCRIPT_DIR}/runQGC.sh" ]   && cp "${SCRIPT_DIR}/runQGC.sh"   "${qgc_dir}/" && chmod +x "${qgc_dir}/runQGC.sh"
   [ -f "${SCRIPT_DIR}/libfuse2.sh" ] && cp "${SCRIPT_DIR}/libfuse2.sh" "${qgc_dir}/" && chmod +x "${qgc_dir}/libfuse2.sh"
 
   local appimage="${qgc_dir}/QGroundControl.AppImage"
-  if [ -f "${appimage}" ]; then
+  if [ -f "${appimage}" ] && [ "$(stat -c%s "${appimage}" 2>/dev/null || echo 0)" -gt 1000000 ]; then
     note "AppImage already present — skipping download."
   else
-    note "Downloading QGroundControl AppImage…"
-    curl -fL "${QGC_URL}" -o "${appimage}" \
-      || { warn "Download failed. Pre-stage QGroundControl.AppImage into ${qgc_dir}/"; return 1; }
+    local urls=()
+    [ -n "${QGC_URL}" ] && urls+=("${QGC_URL}")
+    urls+=("${QGC_CANDIDATES[@]}")
+    local got=0
+    for url in "${urls[@]}"; do
+      note "Trying ${url}"
+      if curl -fSL "${url}" -o "${appimage}" \
+           && [ "$(stat -c%s "${appimage}" 2>/dev/null || echo 0)" -gt 1000000 ]; then
+        got=1; note "Downloaded QGroundControl AppImage."; break
+      fi
+      rm -f "${appimage}"
+    done
+    if [ "${got}" -eq 0 ]; then
+      warn "All QGC download URLs failed. Pre-stage QGroundControl.AppImage into ${qgc_dir}/"
+      warn "(or set QGC_URL=<url> and re-run)."
+      return 1
+    fi
   fi
   chmod +x "${appimage}"
   note "Launch it later with:  cd ${qgc_dir} && ./runQGC.sh"
+  [ "${have_fuse}" -eq 0 ] && return 0  # installed, just needs extract-and-run to launch
+  return 0
 }
 
 # ── Run everything, record pass/fail ───────────────────────────────────────
