@@ -95,11 +95,11 @@ The script is idempotent (safe to re-run) and prints a pass/fail summary at the 
 | Wireshark + MAVLink plugin | `wireshark` | COMMS › Sniff MAVLink |
 | MAVProxy | `mavproxy.py` | COMMS › Sniff MAVLink |
 
-QGroundControl is placed in `~/apps/QGroundControl/`; launch it with `./runQGC.sh` from there.
+QGroundControl is placed in `~/uavlab/apps/QGroundControl/`; launch it with `./runQGC.sh` from there.
 
 **Notes**
 - **wifite** needs a USB WiFi adapter with monitor-mode support (included in the kit); verify with `sudo airmon-ng`.
-- **Offline?** Pre-stage `QGroundControl.AppImage` into `~/apps/QGroundControl/` and use the bundled `files/opensolo.words` instead of running cewl.
+- **Offline?** Pre-stage `QGroundControl.AppImage` into `~/uavlab/apps/QGroundControl/` and use the bundled `files/opensolo.words` instead of running cewl.
 - `apps/install-workshop-apps.sh` is the broader Dark Wolf workshop provisioner; `apps/install-lab-tools.sh` is the trimmed installer for just this lab.
 
 The lab UI's **Setup** section has the same instructions.

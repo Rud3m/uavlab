@@ -84,6 +84,9 @@ cd ~/uavlab/apps/QGroundControl
 ./runQGC.sh
 ```
 
+> [!NOTE] MAVProxy runs in its own virtualenv
+> The installer puts MAVProxy in an isolated Python virtualenv under the repo's `apps/` folder, so it never conflicts with system Python. You still just type `mavproxy` or `mavproxy.py` normally — a wrapper on your `PATH` runs it from the venv for you.
+
 > [!WARNING] Wireless adapter required (wifite)
 > wifite will not work with a built-in laptop WiFi card on most systems. You need a USB WiFi adapter that supports **monitor mode** (one is included in your lab kit). Verify it before the lab with `sudo airmon-ng`.
 
@@ -91,7 +94,7 @@ cd ~/uavlab/apps/QGroundControl
 > `openssh-client-ssh1` is not in every Kali mirror. The script falls back to the `ssh1` package automatically; if both fail, update your repos and re-run the installer.
 
 > [!NOTE] Working offline?
-> Two downloads need internet — the QGroundControl AppImage and the cewl wordlist. If the lab network is down, pre-stage `QGroundControl.AppImage` into `~/apps/QGroundControl/` and use the bundled `files/opensolo.words` wordlist instead of running cewl.
+> Two downloads need internet — the QGroundControl AppImage and the cewl wordlist. If the lab network is down, pre-stage `QGroundControl.AppImage` into `~/uavlab/apps/QGroundControl/` and use the bundled `files/opensolo.words` wordlist instead of running cewl.
 
 
 # UAV {id=uav}
