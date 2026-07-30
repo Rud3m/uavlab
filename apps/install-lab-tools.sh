@@ -132,9 +132,11 @@ install_mavproxy() {
 
   mkdir -p "${vdir}"
   python3 -m venv "${venv}" || { warn "could not create venv"; return 1; }
-  "${venv}/bin/pip" install --upgrade pip wheel setuptools >/dev/null 2>&1 || true
+  "${venv}/bin/pip" install --upgrade pip wheel >/dev/null 2>&1 || true
+  # setuptools provides pkg_resources, which MAVProxy imports at runtime but
+  # Python 3.12+ venvs no longer include by default (pin <81, where it still ships).
   # 'future' is the dep that was missing from the broken ~/.local install.
-  "${venv}/bin/pip" install --no-cache-dir MAVProxy future pymavlink pyserial \
+  "${venv}/bin/pip" install --no-cache-dir "setuptools<81" MAVProxy future pymavlink pyserial \
     || { warn "pip install into venv failed"; return 1; }
 
   # Remove the broken user-local install so it can't shadow our wrappers.
