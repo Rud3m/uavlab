@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 #
 # Launch QGroundControl. Finds the AppImage whether this script is run from the
-# apps/ dir or from apps/QGroundControl/. Tries a normal FUSE launch first; if
-# libfuse.so.2 is missing (newer Kali/Debian), extracts and runs the AppImage.
+# apps/ dir or from apps/QGroundControl/.
+#
+# By default it runs with --appimage-extract-and-run, which does NOT need FUSE
+# or a working /etc/mtab (both are commonly broken on Kali and produce
+# "fusermount: failed to open /etc/mtab: Invalid argument"). It extracts to a
+# temp dir and runs from there — a few seconds slower to start, but reliable.
+#
+# To use the faster FUSE mount instead (needs libfuse.so.2 + a sane /etc/mtab):
+#     QGC_USE_FUSE=1 ./runQGC.sh
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Locate the AppImage: beside this script, in a QGroundControl subdir, or search.
@@ -24,14 +31,16 @@ fi
 cd "$(dirname "${APPIMAGE}")"
 chmod +x "${APPIMAGE}" 2>/dev/null
 
-# Some AppImages need a writable /etc/mtab for FUSE mounting.
-if [ ! -e /etc/mtab ]; then
-  sudo ln -sf /proc/self/mounts /etc/mtab 2>/dev/null || true
+if [ "${QGC_USE_FUSE:-0}" = "1" ]; then
+  # Fast path: FUSE mount. Repair /etc/mtab first (fusermount needs a real,
+  # writable file; a symlink to /proc/self/mounts breaks some builds).
+  if [ ! -f /etc/mtab ] || [ -L /etc/mtab ]; then
+    sudo rm -f /etc/mtab 2>/dev/null || true
+    sudo touch /etc/mtab 2>/dev/null || true
+    sudo chmod 666 /etc/mtab 2>/dev/null || true
+  fi
+  exec "${APPIMAGE}" "$@"
 fi
 
-if ldconfig -p 2>/dev/null | grep -q 'libfuse\.so\.2'; then
-  exec "${APPIMAGE}" "$@"
-else
-  echo "[runQGC] libfuse.so.2 not found — launching with --appimage-extract-and-run"
-  exec "${APPIMAGE}" --appimage-extract-and-run "$@"
-fi
+# Default path: no FUSE, no /etc/mtab needed.
+exec "${APPIMAGE}" --appimage-extract-and-run "$@"
