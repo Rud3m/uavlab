@@ -38,7 +38,7 @@ From the repo, run the installer as your normal **kali** user (not root — the 
 
 ```
 cd ~
-git clone https://github.com/dwdrone/uavlab.git
+git clone https://github.com/dwdrone/uavlab.git # you should already have this 
 cd uavlab/apps
 chmod +x install-lab-tools.sh
 ./install-lab-tools.sh
@@ -106,7 +106,7 @@ The UAV has already been disassembled.
 ### Remove the microSD Card {id=step-ef-7}
 
 1. There is a spring-action mechanism to release the microSD card
-2. Push down gently and let go — the card should pop up a bit
+2. Push down gently and let go — the card should pop up a bit (spring loaded)
 3. Remove the microSD Card
 
 ![Finger pushing the microSD card to eject it](images/page_06_img_00.png "Spring-action slot on the companion computer — push then release")
@@ -114,10 +114,12 @@ The UAV has already been disassembled.
 ### Create a Copy of the microSD Card {id=step-ef-8}
 
 1. Place the microSD card in an SD Card adapter
-2. Place the SD Card adapter into your Kali laptop
+2. Place the SD Card adapter into your Kali laptop or Kali VM
+   - For Kali VM make sure to passthrough the adapter to your VM
 3. Open a terminal
 4. Verify that the card is loaded:
    ```
+   cd ~/uavlab
    sudo fdisk -l /dev/sdb
    ```
    ![fdisk output showing 4 partitions on the microSD card](images/page_07_img_00.png "Expected fdisk output — four partitions on the 7.4 GiB card")
@@ -162,6 +164,11 @@ Copy the squashfs filesystem to your home directory:
 ```
 cp /mnt/p2/3dr-solo-imx6solo-3dr-1080p.squashfs ~/uavlab/
 ```
+> [!NOTE] Done with SD Card
+> - Remove SD card from the adapter
+> - Put SD card back on the drone 
+> - Power on drone and controller
+> - Move forward with excercises while they pair
 
 ## Analyze Firmware {id=analyze-firmware}
 
@@ -228,8 +235,7 @@ You should have a copy of the squashfs file in your home directory from the prev
 
 1. Extract the squashfs:
    ```
-   cd /tmp
-   cp ~/3dr-solo-imx6solo-3dr-1080p.squashfs /tmp
+   cd ~/uavlab
    sudo unsquashfs 3dr-solo-imx6solo-3dr-1080p.squashfs
    ls squashfs-root
    ```
@@ -239,7 +245,7 @@ You should have a copy of the squashfs file in your home directory from the prev
    ```
    > [!NOTE] Discovery — SSH Keys in Firmware
    > SSH keys are present in the root user's home directory inside the firmware image!
-3. Power up your Solo Controller
+3. Make sure your Solo Controller is powered on. Look at the back of the controller for SSID
 4. Find your UAS SSID on your phone:\
    **Swipe Down → Wireless → Saved Networks**\
    Note the network, e.g., `SoloLink_A1B2C3`
@@ -268,13 +274,23 @@ You should have a copy of the squashfs file in your home directory from the prev
 # GCS {id=gcs}
 
 ## Download the 3DR-Solo App from the Phone {id=download-apk}
+Connect the Android phone directly to your laptop, using the USB cable. Make sure to do a passthrough to your VM. 
 
 ### Start the ADB Service
 
 1. In a terminal on the laptop, run:
    ```
+   
    adb devices
+   * daemon not running; starting now at tcp:5037
+   * daemon started successfully
+   List of devices attached
+   8XV7N15C14001567        unauthorized
+
    ```
+> [!NOTE] If you see Unauthorized
+> Unlock the phone and hit ok to the alert that says "Allow Debugging"
+
 2. If no devices are listed, re-establish developer mode on the phone:
    a. On the phone: **Settings → About Phone**
    b. Tap **Build Number** seven times
@@ -299,7 +315,7 @@ adb shell cmd package list packages | sort -r | grep -v motorola | grep -v googl
 ### Find the Install Path
 
 ```
-cd /tmp
+cd ~/uavlab
 adb shell pm path com.o3dr.solo.android
 ```
 
@@ -316,7 +332,7 @@ package:/data/app/~~LQdnnVpL6HHzsf-YqHC6Ww==/com.o3dr.solo.android-_h4ZIQgEnj8hX
 Use the path found above (your path hash will differ):
 
 ```
-adb pull /data/app/~~LQdnnVpL6HHzsf-YqHC6Ww==/com.o3dr.solo.android-_h4ZIQgEnj8hXPBsVekUaw==/base.apk /tmp/3DR-Solo.apk
+adb pull /data/app/~~LQdnnVpL6HHzsf-YqHC6Ww==/com.o3dr.solo.android-_h4ZIQgEnj8hXPBsVekUaw==/base.apk 3DR-Solo.apk
 ```
 
 ### Verify the Download
@@ -337,7 +353,7 @@ md5sum 3DR-Solo.apk
    jadx-gui
    ```
 2. Open the APK:\
-   **File → Open Files → /tmp → 3DR-Solo.apk**
+   **File → Open Files → /uavlab → 3DR-Solo.apk**
 
 ![jadx-gui file open dialog with 3DR-Solo.apk selected](images/page_15_img_00.png "jadx-gui file open dialog — select 3DR-Solo.apk from /tmp")
 
@@ -391,10 +407,6 @@ md5sum 3DR-Solo.apk
 
 # COMMS {id=comms}
 
-:::row
-![Airodump-ng scan showing SoloLink networks and beacons](images/page_17_img_01.png "Scanning — SoloLink networks visible in the room")
-![Airodump-ng showing client stations associated to SoloLink networks](images/page_17_img_02.png "Associated clients on SoloLink networks")
-:::
 
 ## Crack WiFi Password {id=crack-wifi}
 
@@ -420,17 +432,15 @@ Output: approximately 2,644 words in the list.
 > [!NOTE] No Internet? Use the Pre-made Wordlist
 > Use `opensolo.words` from the thumbdrive, or from the repo at `files/opensolo.words`.
 
-![cewl scraping output and wifite scanning for networks](images/page_18_img_00.png "cewl wordlist generation and wifite initial scan")
-
 ### Run wifite
-
+Use the USB wifi adapter
 ```
 wifite --dict opensolo.words
 ```
 
 When you see your UAS SSID (e.g., `SoloLink_A1B2C3`) with 1 or 2 clients in the **CLIENT** column, press [[Ctrl+C]] to stop scanning and start the attack.
 
-![wifite scan showing SoloLink networks and client probe data](images/page_18_img_01.png "wifite scan — wait for clients to appear on your SSID before stopping")
+![wifite scan showing SoloLink networks and client probe data](images/page_19_img_00.png "wifite scan — wait for clients to appear on your SSID before stopping")
 
 ### Bypass Default Attacks to Reach WPA Handshake
 
@@ -443,7 +453,7 @@ wifite will try WPS attacks first. Skip them:
 5. Wait 1–2 minutes for an authentication handshake to appear
 6. wifite will search the wordlist for a matching password
 
-![wifite bypassing WPS attacks and running handshake capture](images/page_19_img_00.png "Bypassing WPS attacks — pressing c to continue to the WPA Handshake phase")
+
 
 ![wifite cracking the WPA handshake with the opensolo.words wordlist](images/page_20_img_00.png "wifite cracks the WPA handshake — password found")
 
@@ -479,11 +489,11 @@ Open Wireshark and select the wireless interface with the `10.1.1.x` address. Yo
 > 1. Find `mavlink_2_common.lua` on the thumbdrive, or at `files/mavlink_2_common.lua` in the repo
 > 2. Copy it to the Wireshark plugins directory:
 >    ```
->    ~/.local/lib/wireshark/plugins/
+>    cp ~/uavlab/files/mavlink_2_common.lua ~/.local/lib/wireshark/plugins/
 >    ```
 > 3. Restart Wireshark — MAVLink packets will now be decoded automatically
 
-![Wireshark capturing and decoding MAVLink telemetry traffic](images/page_21_img_00.png "Wireshark with MAVLink plugin — telemetry between controller and GCS fully decoded")
+
 
 ### Capture with MAVProxy (Alternative)
 
