@@ -364,7 +364,7 @@ md5sum 3DR-Solo.apk
 ### Search for Hardcoded Passwords
 
 1. Click the **Magnifying Glass** search icon
-2. Search for `passwords`:
+2. Search for `password`:
    - Select **Code** option
    - Select **Case-insensitive** option
    - Click **"Load all"** in the lower left
