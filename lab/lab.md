@@ -120,17 +120,21 @@ The UAV has already been disassembled.
 4. Verify that the card is loaded:
    ```
    cd ~/uavlab
+   sudo fdisk -l /dev/sda
+
+   # if you are on a VM
    sudo fdisk -l /dev/sdb
+
    ```
    ![fdisk output showing 4 partitions on the microSD card](images/page_07_img_00.png "Expected fdisk output — four partitions on the 7.4 GiB card")
 5. Copy partition 2 (contains squashfs).
  ***Replace `YYYYMMDD` with today's date:***
    ```
-   sudo dd if=/dev/sdb2 of=3dr-solo-uav-p2-YYYYMMDD.raw bs=1M status=progress
+   sudo dd if=/dev/sda2 of=3dr-solo-uav-p2-YYYYMMDD.raw bs=1M status=progress
    ```
 6. Repeat for Partition 3:
    ```
-   sudo dd if=/dev/sdb3 of=3dr-solo-uav-p3-YYYYMMDD.raw bs=1M status=progress
+   sudo dd if=/dev/sda3 of=3dr-solo-uav-p3-YYYYMMDD.raw bs=1M status=progress
    ```
 7. Mount the partitions as if they were thumb drives:
    ```
@@ -153,7 +157,7 @@ The UAV has already been disassembled.
 > [!WARNING] Also copy partitions 3 and 4
 > Partition 4 is the log partition. This takes ~3 minutes. You can use the pre-made file if available:
 > ```
-> sudo dd if=/dev/sdb4 of=3dr-solo-uav-p4-YYYYMMDD.raw bs=1M status=progress
+> sudo dd if=/dev/sda4 of=3dr-solo-uav-p4-YYYYMMDD.raw bs=1M status=progress
 > sudo mkdir /mnt/p4
 > sudo mount -o rw 3dr-solo-uav-p4-YYYYMMDD.raw /mnt/p4
 > ```

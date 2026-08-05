@@ -1,0 +1,52 @@
+# ─────────────────────────────────────────────────────────────────────────
+# uavlab .gitignore
+# Keeps installer- and exercise-generated artifacts out of the repo so clones
+# and pulls stay fast. The tracked lab inputs (firmware, APK, images, the
+# MAVLink .lua) are intentionally NOT ignored — they're needed for the lab.
+# ─────────────────────────────────────────────────────────────────────────
+
+# ── Installed by apps/install-lab-tools.sh ───────────────────────────────
+# QGroundControl AppImage + its extracted/build byproducts (~250 MB+)
+apps/QGroundControl/
+# MAVProxy (and any other tool) Python virtualenvs
+apps/mavproxy/
+**/*_venv/
+# libfuse2 built from source (QGC fallback)
+**/build-libfuse/
+libfuse/
+# Any downloaded AppImage anywhere
+*.AppImage
+
+# Extra app dirs the broader workshop provisioner can create locally
+apps/MissionPlanner/
+apps/OpenDroneID/
+apps/nrfutil/
+apps/frida/
+apps/sikw00f/
+
+# ── Generated during the lab exercises ───────────────────────────────────
+# Raw partition dumps from `dd` (3dr-solo-uav-p2-YYYYMMDD.raw, etc.)
+*.raw
+# unsquashfs extraction output
+squashfs-root/
+# A working copy of the firmware squashfs left in the clone
+# (the canonical, tracked copy lives in files/solo/)
+*.squashfs
+!files/solo/3dr-solo-imx6solo-3dr-1080p.squashfs
+# Pulled Android package
+*.apk
+!files/3DR Solo_2.4.0_APKPure.apk
+# cewl-generated wordlist in the working dir (the tracked one is files/opensolo.words)
+/opensolo.words
+
+# ── Python (build.py) ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+
+# ── Editor / OS cruft ────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
