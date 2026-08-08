@@ -57,7 +57,7 @@ MOUNTS=(/mnt/p2 /mnt/p3 /mnt/p4)
 
 # Top-level artifacts the exercises create (globs, relative to LAB_DIR).
 FILE_PATTERNS=(
-  '3dr-solo-uav-p'*.raw          # dd partition dumps
+  '3dr-solo-uav-p*.raw'          # dd partition dumps
   '3dr-solo-imx6solo-3dr-1080p.squashfs'  # working copy (tracked one is in files/solo/)
   '3DR-Solo.apk' 'base.apk'      # adb pull
   'opensolo.words'               # cewl output (tracked one is in files/)
