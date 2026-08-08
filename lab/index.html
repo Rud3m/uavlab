@@ -162,6 +162,9 @@ sudo fdisk -l /dev/sda
 
 # if you are on a VM
 sudo fdisk -l /dev/sdb
+
+# if all else fails 
+sudo fdisk -l /dev/sdc
 </pre></div><figure><img src="images/page_07_img_00.png" alt="fdisk output showing 4 partitions on the microSD card"><figcaption>Expected fdisk output — four partitions on the 7.4 GiB card</figcaption></figure></li><li>Copy partition 2 (contains squashfs).<p>***Replace <code>YYYYMMDD</code> with today's date:***</p><div class="code-block"><pre>sudo dd if=/dev/sda2 of=3dr-solo-uav-p2-YYYYMMDD.raw bs=1M status=progress</pre></div></li><li>Repeat for Partition 3:<div class="code-block"><pre>sudo dd if=/dev/sda3 of=3dr-solo-uav-p3-YYYYMMDD.raw bs=1M status=progress</pre></div></li><li>Mount the partitions as if they were thumb drives:<div class="code-block"><pre>sudo mkdir /mnt/p2
 sudo mkdir /mnt/p3
 sudo mount -o rw 3dr-solo-uav-p2-YYYYMMDD.raw /mnt/p2

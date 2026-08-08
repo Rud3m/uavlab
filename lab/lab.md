@@ -125,6 +125,9 @@ The UAV has already been disassembled.
    # if you are on a VM
    sudo fdisk -l /dev/sdb
 
+   # if all else fails 
+   sudo fdisk -l /dev/sdc
+
    ```
    ![fdisk output showing 4 partitions on the microSD card](images/page_07_img_00.png "Expected fdisk output — four partitions on the 7.4 GiB card")
 5. Copy partition 2 (contains squashfs).
