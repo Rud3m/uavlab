@@ -56,6 +56,7 @@ uavlab/
 ├── apps/
 │   ├── install-lab-tools.sh      # One-shot installer for this lab's tools
 │   ├── install-workshop-apps.sh  # Full Dark Wolf workshop provisioner
+│   ├── cleanup-lab.sh            # Reset a machine — unmount + delete lab artifacts
 │   ├── runQGC.sh                 # QGroundControl launch helper
 │   └── libfuse2.sh               # Builds libfuse2 from source (QGC fallback)
 ├── files/

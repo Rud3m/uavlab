@@ -28,7 +28,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     -y|--yes)      ASSUME_YES=1 ;;
     -n|--dry-run)  DRY_RUN=1 ;;
-    -h|--help)     sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help)     awk 'NR>=3 { if ($0 !~ /^#/) exit; sub(/^# ?/,""); print }' "$0"; exit 0 ;;
     -*)            echo "Unknown option: $1" >&2; exit 2 ;;
     *)             LAB_DIR="$1" ;;
   esac
